@@ -1,0 +1,952 @@
+﻿<!DOCTYPE html> 
+<html manifest="arab-verb-cache.php">
+<head> 
+<meta charset="utf-8">
+<title>Arabic Verb</title> 
+<meta name="description" content="Arabic verb conjugator">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1"> 
+<link rel="stylesheet" href="jquery.mobile.min.css" />
+<link rel="apple-touch-icon" href="f3l-57.png" sizes="57x57">
+<link rel="apple-touch-icon" href="f3l-72.png" sizes="72x72">+
+<link rel="apple-touch-icon" href="f3l-114.png" sizes="114x114">
+<link rel="apple-touch-icon-precomposed" sizes="android-only" href="f3l-114.png">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<script>
+fullDisp = true
+datever = 20151015;
+var v_code, all_verbs;
+</script>
+<script src="jquery.min.js"></script>
+<script src="arab-verb-conj.js"></script>
+<script src="arab-verb-data.js"></script>
+<script>
+$(document).bind("mobileinit", function() { 
+actpasDef = "A"
+logFunctionTime("mobileinit")
+$.support.touchOverflow = true;
+$.mobile.touchOverflowEnabled = true;
+$.mobile.buttonMarkup.hoverDelay = 0;
+cache = window.applicationCache;
+cache.addEventListener('updateready', function cacheUpdatereadyListener () {
+    console.log("update ready")
+    window.applicationCache.update();
+    window.applicationCache.swapCache();
+	window.location.reload();
+    }, false);
+
+st1 = "CA1P"
+st2 = "CA2P"
+st3 = "CA3P"
+st4 = "CA4P"
+st5 = "CA5P"	
+
+  fL = false;
+  fF = false;
+  fT = false;
+  fC = false;
+
+	
+});
+
+$( document ).on( "pagebeforechange", function(event, data) {
+  logFunctionTime("pagebeforechange")
+  var url = $.mobile.path.parseUrl(data.toPage).hash;
+  if( url != undefined && url.length>5 && url.slice(0,2) =="#V") {
+    logFunctionTime("pagebeforechange #V")
+    v_code = url
+    selectVerb()
+    $(".ui-rbtn-left").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7)) == 0)) 
+    $(".ui-rbtn-right").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7))+6 == all_verbs.length))
+    showLBTop()
+    event.preventDefault(); }
+  else if( url != undefined && url.length==4 && url.slice(0,2) == "#L") {
+    logFunctionTime("pagebeforechange #L")
+    selectVerbList( url )
+    showLBMid()
+    event.preventDefault(); }
+  else if( url != undefined && url=="#LBTOP") {
+    logFunctionTime("pagebeforechange #LBTOP")
+    showLBTop()
+    event.preventDefault(); }
+  else if( url != undefined && url=="#LBMID") {
+    //selectVerbList( "" )
+    $(".id-btn-tense").removeClass("ui-btn-active")
+    $(".id-column").addClass("ui-screen-hidden")
+	$("#sCon").collapsible("collapse")
+    sc = 0
+	logFunctionTime("pagebeforechange #LBMID")
+    showLBMid()
+    event.preventDefault(); }
+  else if( url != undefined && url=="#LBBOT") {
+    logFunctionTime("pagebeforechange #LBBOT")
+    showLBBot()
+    event.preventDefault();}
+  else if( url != undefined && url.slice(0,2) == "#V" ) {
+    //selectVerbList( "" )
+    showLBMid()
+    event.preventDefault(); }
+//  else if( url != undefined && url=="#NEXTV") {
+//    logFunctionTime("pagebeforechange #NEXTV")
+//    selectNextVerb( )
+//    event.preventDefault();}
+});
+
+$( document ).on( "filterablebeforefilter", "#VL", function( e, data ) {
+	e.preventDefault();
+    selectVerbList( "" )
+    $("#VL").html(lhtml)
+	});
+
+$( document ).on( "pagecreate", "#complete", function() {
+  logFunctionTime("#complete pagecreate")
+  var winW = 630, winH = 460;
+  if (document.body && document.body.offsetWidth) 
+  { winW = document.body.offsetWidth;
+    winH = document.body.offsetHeight;
+  }
+  if (document.compatMode=='CSS1Compat' &&
+      document.documentElement &&
+      document.documentElement.offsetWidth ) 
+  { winW = document.documentElement.offsetWidth;
+    winH = document.documentElement.offsetHeight;
+  }
+  if (window.innerWidth && window.innerHeight) 
+  { winW = window.innerWidth;
+    winH = window.innerHeight;
+  }
+  $("#leftpagepanel").attr("height",(winH - 45)+"px")
+  $("#rppc").attr("width",(winW - 300)+"px")
+  $("#rightpagepanel").attr("style","position: relative; overflow: auto; display: block;padding-left: 15px; padding-right: 15px;padding-top:15px;padding-bottom:15px;height:"+(winH - 75)+"px")
+  if( Number(localStorage.getItem('datever')) == datever) {
+    v_code = localStorage.getItem('pvcode') 
+	if( v_code === "undefined" ) {v_code = "#V21270";} }
+  else {
+    v_code = "#V21270"; }
+  all_verbs = v_code
+  localStorage.setItem('datever', datever)
+  loadVerbList()
+//  selectVerbList()
+//  selectVerbList( "#A00" )
+//  loadCatList( )
+});
+
+$( document ).on( "change", ":checkbox", function (data) {
+  logFunctionTime("#change :checkbox")
+  if( data.currentTarget.name == "checkP" ) {
+    v_code = v_code.slice(0, v_code.length - 1) + ($("#checkP").prop('checked') ? "P" : "A" ); 
+    selectVerb() }
+  else if ( data.currentTarget.name == "checkN" ) {
+    updateSingleTense() }
+  else if( data.currentTarget.name == "checkC" ) {
+   fC = $("#checkC").prop("checked")
+   $(".id-L").html((fC && fLv > 1 ? "<=" : "=") + fLv).toggleClass("ui-screen-hidden",!fL)
+   selectVerbList( "" ); }
+  else {
+    updateTenseTable(); } } );
+
+
+$( document ).on( "change", ":radio", function ( data ) {
+  var tV = $('input[name='+data.currentTarget.name+']:checked').val()
+  switch( data.currentTarget.name.slice(1,2) ) {
+  case "L":
+	fLv = Number(tV)
+    fL = fLv > 0
+ 	if( !fL ) { 
+	  $("#checkC").prop("checked",false).checkboxradio("refresh")
+      fC = false}
+   $(".id-L").html((fC && fLv > 1  ? "<=" : "=") + fLv).toggleClass("ui-screen-hidden",!fL)
+	$("#checkC").parent().toggleClass("ui-state-disabled", !(fLv > 1))
+  selectVerbList( "" )
+    break;
+  case "F":
+	fFv = Number(tV)
+    fF = fFv > 0
+	$(".id-F").html("I   II  III IV  V   VI  VII VIIIIX  X   XI  XII XIIIXIV XV  16  17  18  19  20  QI  QII QIIIQIV ".slice((fFv-1)*4,fFv*4-1)).toggleClass("ui-screen-hidden",!fF)
+  selectVerbList( "" )
+    break;
+  case "T":
+	fTv = Number(tV)
+    fT = fTv > 0
+	$(".id-T").html("(" + "rahbgzd".slice(fTv-1,fTv) + ")").toggleClass("ui-screen-hidden",!fT)  
+  selectVerbList( "" )
+    break; }
+
+} );
+	
+	
+$( document ).on( "change", ".id-tense", function (data) {
+    updateSingleTense() }
+);
+
+	
+$( document ).on( "collapsibleexpand", "#sCon", function (data) {
+  logFunctionTime("collapsibleexpand")
+  if( (typeof sc === 'undefined') || (sc == 0) ) {
+    $("#con-en1").addClass("ui-btn-active")
+    st = st1;
+	sc = 1 
+	$(".id-column").html("column "+sc).removeClass("ui-screen-hidden")
+	$("#checkN").prop("checked", st.slice(3,4) == "N" )
+	console.log(st.slice(2,3))
+	$(".id-tense").prop("checked", "")
+	$("input[name='checkC1'][value='"+st.slice(2,3)+"']").prop("checked", "checked")
+	$("#ActPas").val((hPassive ? "A" : (hActive ? "P" : st.slice(1,2)))).flipswitch("refresh")
+	$("#checkN").checkboxradio("refresh")
+	$(".id-tense").checkboxradio("refresh");
+    /*$("#sCon").collapsible("expand");*/ }
+    $(".ui-rbtn-left").addClass("ui-screen-hidden") 
+    $(".ui-rbtn-right").addClass("ui-screen-hidden")
+} );
+	
+$( document ).on( "collapsiblecollapse", "#sCon", function (data) {
+  logFunctionTime("collapsiblecollapse")
+  $(".id-btn-tense").removeClass("ui-btn-active")
+  $(".id-column").addClass("ui-screen-hidden")
+  sc = 0
+  if( v_code !== undefined){
+   $(".ui-rbtn-left").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7)) == 0)) 
+   $(".ui-rbtn-right").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7))+6 == all_verbs.length)) }
+} );
+	
+$( document ).on( "change", "#ActPas", function ( data ) {
+  vActive = $("#ActPas").val() == "A"
+  $(".id-active").parent().toggleClass("ui-screen-hidden",!vActive)
+  $(".id-passive").parent().toggleClass("ui-screen-hidden",vActive)
+  if( !vActive && (Number(st.slice(2,3)) > 4) && (Number(st.slice(2,3)) != 7)) {
+	$(".id-tense").prop("checked", "")
+	$("input[name='checkC1'][value='1']").prop("checked", "checked")
+	$(".id-tense").checkboxradio("refresh"); }
+  updateSingleTense() 
+} );
+	
+$( document ).on( "change", ".col_2", function ( data ) {
+   updateSingleTense( ); } );
+
+$( document ).on( "click", ".id-fR", function ( data ) {
+	fLv = 0
+    fL = false
+	$(".id-L").addClass("ui-screen-hidden")
+	fFv = 0
+    fF = false
+	$(".id-F").addClass("ui-screen-hidden")
+	fTv = 0
+    fT = false
+	$(".id-T").addClass("ui-screen-hidden")  
+	fC = false
+	$("#checkC").prop("checked", false).checkboxradio("refresh")
+	$("#checkC").parent().toggleClass("ui-state-disabled",!fL)
+	$("input[name='rL'][value='00']").prop("checked", "checked")
+	$("input[name='rL']").checkboxradio("refresh")
+	$("#L1").collapsible("collapse")
+	$("input[name='rF'][value='00']").prop("checked", "checked")
+	$("input[name='rF']").checkboxradio("refresh")
+	$("#L2").collapsible("collapse")
+	$("input[name='rT'][value='00']").prop("checked", "checked")
+	$("input[name='rT']").checkboxradio("refresh")
+	$("#L3").collapsible("collapse")
+  selectVerbList( "" )
+  console.log("reset")})
+
+	
+$( document ).on( "click", ".id-btn-tense", function( data ) {
+  showLBTop()
+  buttonpressed = data.target.id
+  if( !$("#"+buttonpressed).hasClass("ui-btn-active") ) {
+    $(".id-btn-tense").removeClass("ui-btn-active")
+    $("#"+buttonpressed).addClass("ui-btn-active")
+	sc = Number(buttonpressed.slice(6,7))
+	$(".id-column").html("column "+sc).removeClass("ui-screen-hidden")	
+	switch( sc ) {
+	  case 1: st = st1; break;
+	  case 2: st = st2; break;
+	  case 3: st = st3; break;
+	  case 4: st = st4; break;
+	  case 5: st = st5; break;
+	}
+	$(".col_2").toggleClass("ui-screen-hidden",st.slice(1,4) != "A1N") 
+	$("#checkN").prop("checked", st.slice(3,4) == "N" )
+	console.log(st.slice(2,3))
+	$(".id-tense").prop("checked", "")
+	$("input[name='checkC1'][value='"+st.slice(2,3)+"']").prop("checked", "checked")
+	if( st.slice(1,4) == "A1N" ) {
+	  $("input[name='radioN'][value='1']").prop("checked", (st.slice(4,5) == "1" ? "checked" : ""))
+	  $("input[name='radioN'][value='2']").prop("checked", (st.slice(4,5) == "2" ? "checked" : ""))
+	  console.log("change value")
+      $("input[name='radioN']").checkboxradio("refresh")	  }
+    $(".ui-rbtn-left").addClass("ui-screen-hidden") 
+    $(".ui-rbtn-right").addClass("ui-screen-hidden")
+	$("#ActPas").val((hPassive ? "A" : (hActive ? "P" : st.slice(1,2)))).flipswitch("refresh")
+	$("#checkN").checkboxradio("refresh")
+	$(".id-tense").checkboxradio("refresh");
+    $("#sCon").collapsible("expand"); }
+  else {	
+    sc = 0
+    $(".ui-rbtn-left").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7)) == 0)) 
+    $(".ui-rbtn-right").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7))+6 == all_verbs.length))
+    $(".id-btn-tense").removeClass("ui-btn-active")
+    $(".id-column").addClass("ui-screen-hidden") 
+	$("#sCon").collapsible("collapse")}
+} );
+	
+$( document ).on("click", ".id-nav.ui-rbtn", function (data) {
+var cverb_pos = all_verbs.indexOf(v_code.slice(1,7))
+if( data.currentTarget.matches(".ui-rbtn-left") && (cverb_pos > 0)) {
+  v_code = "#" + all_verbs.slice(cverb_pos -6, cverb_pos) }
+else if (cverb_pos < all_verbs.length - 7) {
+  v_code = "#" + all_verbs.slice(cverb_pos +6, cverb_pos + 12) }
+selectVerb()
+  $(".ui-rbtn-left").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7)) == 0)) 
+  $(".ui-rbtn-right").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7))+6 == all_verbs.length))
+console.log(v_code)
+  }
+);
+
+	
+	
+</script>
+<style type="text/css">
+html .ui-filterable {
+ margin: -1em -.5em 0em; 
+} 
+
+.id-btn-tense {
+  font-weight: normal !important;}
+
+.id-btn-tense.ui-btn-active {
+  background-color : #4163a9 !important;
+}
+
+.ui-btn, label.ui-btn {
+  border-right: 0px !important;
+  border-bottom: 0px !important;
+  border-left: 0px !important;
+  }
+
+.ui-btn-fullsize {
+//    -webkit-border-radius: .3125em !important;
+//    border-radius: .3125em !important;
+    top:3px !important;
+//    padding: 2.75px !important;
+	margin: 0 0 ! important;
+	left: 216px !important;
+	position:absolute;
+//	background-color: #e9e9e9 !important;
+//	border-color: #e9e9e9 !important;
+}
+
+.ui-btn-full {
+	background-color: #e9e9e9 !important;
+	border-color: #e9e9e9 !important;
+	color: #4163a9 !important;
+	font-size:1em !important;
+	font-weight:normal !important;
+	padding-top:9px !important;
+	padding-bottom:7px !important;
+    padding-left: 30px;
+	top: .1em !important;
+}
+.ui-txt-blue {
+//  color: #44B0F8;
+// color: #0080FF;
+// color: #0078D7;
+color: #4163a9;
+}
+
+.ui-li-inline {
+    margin: -1em -.7em !important;
+}
+li div.ui-select {
+	margin-top: 0;
+	margin-bottom: 0;
+	position: relative;
+	text-align: left !important;
+	border: 0;
+}
+
+.ui-bl-icon.ui-icon-carat-l:after,
+ .ui-bl-icon .ui-icon-carat-l:after {
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpolygon%20style%3D%22fill%3A%234163a9%3B%22%20points%3D%2210.596%2C11.949%205.646%2C7%2010.596%2C2.05%208.475%2C-0.071%201.404%2C7%208.475%2C14.07%20%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.ui-bl-icon.ui-icon-mail:after,
+ .ui-bl-icon.ui-icon-mail:after {
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpath%20style%3D%22fill%3A%234163a9%3B%22%20d%3D%22M0%2C3.75V12h14V3.75L7%2C9L0%2C3.75z%20M14%2C2H0l7%2C5L14%2C2z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.ui-bl-icon.ui-icon-bars:after,
+ .ui-bl-icon.ui-icon-bars:after {
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpath%20style%3D%22fill%3A%234163a9%3B%22%20d%3D%22M1%2C4h12c0.553%2C0%2C1-0.447%2C1-1s-0.447-1-1-1H1C0.447%2C2%2C0%2C2.447%2C0%2C3S0.447%2C4%2C1%2C4z%20M13%2C6H1%20C0.447%2C6%2C0%2C6.447%2C0%2C7c0%2C0.553%2C0.447%2C1%2C1%2C1h12c0.553%2C0%2C1-0.447%2C1-1C14%2C6.447%2C13.553%2C6%2C13%2C6z%20M13%2C10H1c-0.553%2C0-1%2C0.447-1%2C1%20s0.447%2C1%2C1%2C1h12c0.553%2C0%2C1-0.447%2C1-1S13.553%2C10%2C13%2C10z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.ui-bl-icon.ui-icon-bullets:after,
+ .ui-bl-icon.ui-icon-bullets:after {
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpath%20style%3D%22fill%3A%234163a9%3B%22%20d%3D%22M5%2C4h8c0.553%2C0%2C1-0.447%2C1-1s-0.447-1-1-1H5C4.447%2C2%2C4%2C2.447%2C4%2C3S4.447%2C4%2C5%2C4z%20M13%2C6H5%20C4.447%2C6%2C4%2C6.447%2C4%2C7c0%2C0.553%2C0.447%2C1%2C1%2C1h8c0.553%2C0%2C1-0.447%2C1-1C14%2C6.447%2C13.553%2C6%2C13%2C6z%20M13%2C10H5c-0.553%2C0-1%2C0.447-1%2C1%20s0.447%2C1%2C1%2C1h8c0.553%2C0%2C1-0.447%2C1-1S13.553%2C10%2C13%2C10z%20M1%2C2C0.447%2C2%2C0%2C2.447%2C0%2C3s0.447%2C1%2C1%2C1s1-0.447%2C1-1S1.553%2C2%2C1%2C2z%20M1%2C6%20C0.447%2C6%2C0%2C6.447%2C0%2C7c0%2C0.553%2C0.447%2C1%2C1%2C1s1-0.447%2C1-1C2%2C6.447%2C1.553%2C6%2C1%2C6z%20M1%2C10c-0.553%2C0-1%2C0.447-1%2C1s0.447%2C1%2C1%2C1s1-0.447%2C1-1%20S1.553%2C10%2C1%2C10z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+
+.ui-bl-icon.ui-icon-delete:after,
+.ui-bl-icon .ui-icon-delete:after {
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpolygon%20fill%3D%22%234163a9%22%20points%3D%2214%2C3%2011%2C0%207%2C4%203%2C0%200%2C3%204%2C7%200%2C11%203%2C14%207%2C10%2011%2C14%2014%2C11%2010%2C7%20%22%2F%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3Cg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+.ui-bl-icon.ui-icon-check:after,
+ .ui-bl-icon.ui-icon-check:after {
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpolygon%20style%3D%22fill%3A%234163a9%3B%22%20points%3D%2214%2C4%2011%2C1%205.003%2C6.997%203%2C5%200%2C8%204.966%2C13%204.983%2C12.982%205%2C13%20%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.ui-bg-emph {
+	background-color:#fbff7c !important;
+}
+
+.ui-aside {
+	top: 1em;
+	font-weight: normal;
+	text-align: right;
+	float:right;
+    font-size:1.6em;
+}
+.ui-aside-blue {
+	top: 1em;
+	font-weight: normal;
+	text-align: right;
+	float:right;
+    font-size:1.6em;
+    color: #4163a9;
+}
+.ui-listview .ui-li-aside {
+	position: static; 
+ 	right: 0em; 
+	margin: -.2em;
+	float:right;
+	font-size: 1.6em;
+	font-weight: normal;
+}
+/* Button up */
+.ui-overlay-a .ui-btn,
+.ui-page-theme-a .ui-btn,
+html .ui-bar-a .ui-btn,
+html .ui-body-a .ui-btn,
+html body .ui-btn.ui-btn-a,
+html body .ui-group-theme-a .ui-btn,
+[class*="ui-group-theme-"] .ui-btn.ui-btn-a,
+/* Button visited */
+.ui-page-theme-a .ui-btn:visited,
+html .ui-bar-a .ui-btn:visited,
+html .ui-body-a .ui-btn:visited,
+html body .ui-btn.ui-btn-a:visited,
+html body .ui-group-theme-a .ui-btn:visited,
+[class*="ui-group-theme-"] .ui-btn.ui-btn-a:visited {
+	background: 			#fff /*{a-bup-background-color}*/;
+}
+/* Button up */
+.ui-overlay-b .ui-btn,
+.ui-page-theme-b .ui-btn,
+html .ui-bar-b .ui-btn,
+html .ui-body-b .ui-btn,
+html body .ui-group-theme-b .ui-btn,
+html head + body .ui-btn.ui-btn-b,
+/* Button visited */
+.ui-overlay-b .ui-btn:visited,
+.ui-page-theme-b .ui-btn:visited,
+html .ui-bar-b .ui-btn:visited,
+html .ui-body-b .ui-btn:visited,
+html body .ui-group-theme-b .ui-btn:visited,
+html head + body .ui-btn.ui-btn-b:visited {
+	background: 			#2574a9 /*{b-bup-background-color}*/;
+}
+/* Button hover */
+.ui-page-theme-b .ui-btn:hover,
+html .ui-bar-b .ui-btn:hover,
+html .ui-body-b .ui-btn:hover,
+html body .ui-btn.ui-btn-b:hover,
+html body .ui-group-theme-b .ui-btn:hover,
+[class*="ui-group-theme-"] .ui-btn.ui-btn-b:hover {
+	background: 			#2574a9 /*{b-bhover-background-color}*/;
+}
+
+html body .ui-collapsible-heading-toggle.ui-btn.ui-btn-c {
+background-color: rgb(246,246,246) /*#e9e9e9/*2574a9 /*{c-bup-background-color}*/;
+border-color: #f6f6f/*{c-bup-border}*/;
+font-size: 14px !important;
+border-bottom-width: 0px;
+color: #111 /*{c-bup-color}*/;
+text-shadow: 0 /*{b-bup-shadow-x}*/ 1px /*{b-bup-shadow-y}*/ 0 /*{b-bup-shadow-radius}*/ #eee /*{b-bup-shadow-color}*/;
+}
+
+
+.aw-index {
+font-size:.7em;
+vertical-align:top;
+font-weight:bold;
+}
+
+.ui-collapsible-inset, .ui-collapsible-set {
+margin: .9em 0 !important;
+}
+
+.ui-controlgroup, fieldset.ui-controlgroup {
+margin: 0;
+}
+
+//.ui-controlgroup-vertical .ui-controlgroup-controls .ui-btn {
+//  border-left-width: 0;
+//  border-right-width: 0;
+//}
+
+.ui-controlgroup-vertical .ui-controlgroup-controls .ui-btn.ui-last-child {
+border-bottom-width: 0;
+}
+
+.ui-listview .ui-li-static.ui-last-child, .ui-listview .ui-li-divider.ui-last-child, .ui-listview li.ui-last-child a.ui-btn {
+border-bottom-width: 0px;
+}
+
+.col_2 .ui-controlgroup-controls { 
+    width: 100%; 
+}
+.col_2 .ui-controlgroup-controls .ui-radio{ 
+    width: 50%;
+}
+.col_2 .ui-controlgroup-controls .ui-radio .ui-btn{ 
+    text-align: center !important;
+}
+.col_3 .ui-controlgroup-controls { 
+    width: 100%; 
+}
+.col_3 .ui-controlgroup-controls .ui-radio{ 
+    width: 25%;
+}
+.col_3 .ui-controlgroup-controls .ui-radio .ui-btn{ 
+    text-align: center !important;
+}
+
+.ui-rbtn {
+display: block;
+height: 48px;
+position: fixed;
+bottom: 16px;
+border-width : 0px;
+border-style : solid;
+    //border-color: #0078D7;
+	border-color: #4163a9;
+	border-radius: 24px;
+	font-size: 1.5em;
+	line-height: 48px;
+	text-align:center;
+	text-shadow: 0 0;
+}
+
+.ui-rbtn-right {
+z-index: 199;
+left: 236px;
+width: 48px;
+}
+
+.ui-rbtn-left  , .ui-rbtn-left-s {
+z-index: 199;
+left: 16px;
+width: 48px;
+}
+
+.ui-bg-blue {
+//  	background-color: #0078D7;
+    background-color: #4163a9;
+    opacity: .5;
+}
+
+
+.ui-table th .ui-btn {
+   margin:-.3em -.4em -.4em 0px;
+   padding: .4em .3em;
+   text-align:left;	
+ }
+
+ .ui-table th .ui-btn .ui-li-count{
+   right: .4em
+ }
+
+.ui-caret-l {
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpolygon%20style%3D%22fill%3A%23000000%3B%22%20points%3D%2210.596%2C11.949%205.646%2C7%2010.596%2C2.05%208.475%2C-0.071%201.404%2C7%208.475%2C14.07%20%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.ui-caret-r {
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpolygon%20points%3D%223.404%2C2.051%208.354%2C7%203.404%2C11.95%205.525%2C14.07%2012.596%2C7%205.525%2C-0.071%20%22%2F%3E%3C%2Fsvg%3E");
+}
+
+
+ 
+</style>
+<script src="jquery.mobile.min.js"></script>
+
+</head> 
+<body> 
+
+
+<!-- Selection page -->
+
+<div id="complete" data-role="page" data-title="Arabic verb" class="ui-nodisc-icon">
+
+<div data-role="header" data-theme="a" data-position="fixed">
+<a id="close" href="#LBTOP" class="ui-btn-full ui-bl-icon ui-link ui-btn ui-btn-a ui-icon-delete ui-btn-icon-left ui-corner-all ui-screen-hidden">Close</a>
+<a id="verbl" href="#LBBOT" class="ui-btn-full ui-bl-icon ui-link ui-btn ui-btn-a ui-btn-fullsize ui-corner-all ui-icon-bullets ui-btn-icon-left ui-screen-hidden">Filter</a>
+<a id="apply" href="#V" class="ui-btn-full ui-bl-icon ui-link ui-btn ui-btn-a ui-btn-fullsize ui-corner-all ui-icon-bars ui-btn-icon-left ui-screen-hidden">Result</a>
+<h1 id="text-1">Arabic verb</h1> 
+<a href="mailto:arwiz.be@gmail.com?subject=About Arabic Verb" class="ui-btn-full ui-btn-right ui-bl-icon ui-link ui-btn ui-btn-a ui-icon-mail ui-btn-icon-left ui-corner-all">Contact</a>
+ </div><!-- /header -->
+
+<div data-role="content" width="100%" style="padding:0;overflow:hidden;">
+<table border='0' cellpadding='0' cellspacing='0' width='100%' >
+<tr>
+<td valign='top' width='300px' id='leftpagepanel' style='position:relative; display:block;overflow:auto;padding-bottom:-15px'>
+<div id="lbtop" style="padding:1em">
+<ul data-role="listview" data-theme="a" data-divider-theme="a" class="ui-alt-icon ui-nodisc-icon">
+<li data-role="list-divider" >Basics<span class="ui-li-count">25-09-2016</span></li>
+<li><a href="#LBMID"><span id="Base" class="id-verb ui-li-aside">فعل</span><span id="S">Stam I</span></a></li>
+
+
+</ul>
+<div id="test" data-role="collapsible-set" data-inset="false" data-mini="true" class="ui-alt-icon">
+<div id="sCon" data-role="collapsible" data-theme="c" data-content-theme="a" data-collapsed-icon="carat-r" data-expanded-icon="carat-d" data-inset="false">
+<h2>Conjugate<span class="ui-li-count ui-body-inherit ui-screen-hidden id-column">column 1</span></h2>
+<ul data-role="listview">
+<fieldset data-role="controlgroup" data-corners="false">
+    <input type="checkbox" name="checkN" id="checkN">
+    <label for="checkN">Negated<span class="ui-li-aside">النفي</span></label>
+</fieldset>
+<li data-role="list-divider" >
+<span class="id-ap-value ui-li-count ui-screen-hidden">A</span>
+<span class="id-ap-switch id-ap-sw1 ui-li-aside" style="margin:-.4em -1.2em">
+<select name="ActPas" id="ActPas" data-role="flipswitch" data-mini="true" data-theme="a">
+  <option value="A">A</option>
+  <option value="P">P</option>
+</select>
+</span>Select tense
+</li>
+
+<fieldset data-role="controlgroup" data-corners="false">
+    <input type="radio" name="checkC1" value="1" id="checkC1" class="id-tense">
+    <label for="checkC1">Past<span class="ui-li-aside">الماضي</span></label>
+</fieldset>
+<fieldset data-role="controlgroup" data-type="horizontal" data-corners="false" class="col_2 ui-screen-hidden">
+    <input type="radio" name="radioN" id="radioN1" value="1" checked="checked">
+    <label for="radioN1">with ما</label>
+    <input type="radio" name="radioN" id="radioN2" value="2">
+    <label for="radioN2">with لم</label>
+</fieldset> 
+<fieldset data-role="controlgroup" data-corners="false">
+    <input type="radio" name="checkC1" value="2" id="checkC3" class="id-tense">
+    <label for="checkC3">Present<span class="ui-li-aside">المضارع</span></label>
+    <input type="radio" name="checkC1" value="3" id="checkC5" class="id-tense">
+    <label for="checkC5">Future<span class="ui-li-aside">المستقبل</span></label>
+    <input type="radio" name="checkC1" value="4" id="checkC6" class="id-tense">
+    <label for="checkC6">Subjunctive<span class="ui-li-aside">المنصوب</span></label>
+    <input type="radio" name="checkC1" value="5" id="checkC7" value="" class="id-active id-tense">
+    <label for="checkC7">Imperative<span class="ui-li-aside">الامر</span></label>
+    <input type="radio" name="checkC1" value="6" id="checkC8" class="id-active id-tense">
+    <label for="checkC8">Past 2<span class="ui-li-aside">ماضي الناقص</span></label>
+    <input type="radio" name="checkC1" value="7" id="checkC9" class="id-tense">
+    <label for="checkC9">Jussive<span class="ui-li-aside">المجزوم</span></label>
+</fieldset>
+</ul>
+</div><!-- /collapsible -->
+<div data-role="collapsible" data-theme="c" data-content-theme="a" data-collapsed-icon="carat-r" data-expanded-icon="carat-d" data-collapsed="true" data-inset="false" class="id-rel-verb">
+<h2>Related verbs</h2>
+<ul id="VRL" data-role="listview">
+</ul>
+</div><!-- /collapsible -->
+<div id="More" data-role="collapsible" data-collapsed="false" data-theme="c" data-content-theme="a" data-collapsed-icon="carat-r" data-expanded-icon="carat-d" data-inset="false">
+<h2>More</h2>
+<ul data-role="listview">
+<li id="VUW" class="ui-screen-hidden"><div id="UW" class="ui-li-aside">...أنْ \...على</div><span class="aw-index">USE WITH</span></li>
+<li data-role="list-divider" ><span class="ui-li-aside">الترجمة</span>Translation</li>
+<li><span class="aw-index">NL</span> <span id="NL">Nederlands</span><span id="CLT" class="ui-li-count">4.1</span></li>
+<li><span class="aw-index">EN</span> <span id="EN">English</span><span id="IND" class="ui-li-count">411</span></li>
+<li data-role="list-divider" ><span class="ui-li-aside">اسم الفاعِل</span>Active Participle</li>
+<li><span id="AD" class="ui-li-aside"></span> &nbsp;</li>
+<li id="PPT" data-role="list-divider"><span class="ui-li-aside">اسم المَفعُول</span>Passive Participle</li>
+<li id="PPV"><span id="PD" class="ui-li-aside"></span> &nbsp;</li>
+<li data-role="list-divider"><span class="ui-li-aside">المصدر</span>MasDar</li>
+<li id="VM1" ><span id="M1" class="ui-li-aside">المصدر</span> &nbsp;</li>
+<li id="VM2" class="ui-screen-hidden"><span id="M2" class="ui-li-aside">المصدر</span> &nbsp;</li>
+<li id="VM3" class="ui-screen-hidden"><span id="M3" class="ui-li-aside">المصدر</span> &nbsp;</li>
+<li id="VM4" class="ui-screen-hidden"><span id="M4" class="ui-li-aside">المصدر</span> &nbsp;</li>
+<li id="VM5" class="ui-screen-hidden"><span id="M5" class="ui-li-aside">المصدر</span> &nbsp;</li>
+</div><!-- /collapsible -->
+</div><!-- /collapsible set-->
+</ul>
+</div>
+<div id="lbmid" style="padding:1em" class="ui-screen-hidden">
+<div class="ui-filterable ui-alt-icon">
+<input data-type="search" data-theme="a" id="FilterListView" data-corners="false">
+</div>
+<ul id="VL" data-role="listview" data-icon="false" data-filter="true" data-input="#FilterListView" data-filter-placeholder="Search or select verb..." data-theme="a" data-divider-theme="a"  data-icon-theme="b" data-split-theme="a" class="ui-alt-icon ui-nodisc-icon">
+</ul>
+</div>
+<div id="lbbot" style="padding:1em" class="ui-screen-hidden">
+<ul id="VLL" data-role="listview" data-theme="a" data-icon="false">
+<fieldset data-role="controlgroup" data-corners="false">
+    <input type="checkbox" name="checkS" id="checkS">
+    <label for="checkS">Sort on root<span class="ui-li-count id-v-count">1</span></label>
+	<button class="id-fR" style="text-align:left" >Reset all filters</button>
+</fieldset>
+</ul>
+<div data-role="collapsible-set" data-inset="false" data-mini="false" class="ui-alt-icon">
+<div id="L1" data-role="collapsible" data-theme="c" data-content-theme="a" data-collapsed-icon="carat-r" data-expanded-icon="carat-d" data-inset="false" class="ui-nodisc-icon">
+<h2>Filter on CLT level<span class="ui-li-count ui-body-inherit ui-screen-hidden id-L">1</span></h2>
+<ul data-role="listview" data-theme="a" data-icon="false">
+<fieldset data-role="controlgroup" data-corners="false">
+    <input type="radio" name="rL" id="rL00" value="00" checked="checked">
+    <label for="rL00">Not filtered</label>
+    <input type="radio" name="rL" id="rL01" value="01">
+    <label for="rL01">CLT Level 1</label>
+    <input type="radio" name="rL" id="rL02" value="02">
+    <label for="rL02">CLT Level 2</label>
+    <input type="radio" name="rL" id="rL03" value="03">
+    <label for="rL03">CLT Level 3</label>
+    <input type="radio" name="rL" id="rL04" value="04">
+    <label for="rL04">CLT Level 4</label>
+    <input type="radio" name="rL" id="rL05" value="05">
+    <label for="rL05">CLT Level 5</label>
+    <input type="radio" name="rL" id="rL06" value="06">
+    <label for="rL06">CLT Level 6</label>
+    <input type="radio" name="rL" id="rL07" value="07">
+    <label for="rL07">CLT Level 7</label>
+    <input type="radio" name="rL" id="rL08" value="08">
+    <label for="rL08">CLT Level 8</label>
+    <input type="checkbox" name="checkC" id="checkC" class="ui-screen-hidden">
+    <label for="checkC">include lower levels</label>
+</fieldset>
+</ul>
+</div>
+<div id="L2" data-role="collapsible" data-theme="c" data-content-theme="a" data-collapsed-icon="carat-r" data-expanded-icon="carat-d" data-inset="false" class="ui-nodisc-icon">
+<h2>Filter on form<span class="ui-li-count ui-body-inherit ui-screen-hidden id-F">I</span></h2>
+<ul data-role="listview">
+<fieldset data-role="controlgroup" data-corners="false">
+    <input type="radio" name="rF" id="rF00" value="00" checked="checked">
+	<label for="rF00">Not filtered on Form</label>
+    <input type="radio" name="rF" id="rF01" value="01">
+	<label for="rF01">Form I</label>
+    <input type="radio" name="rF" id="rF02" value="02">
+	<label for="rF02">Form II</label>
+    <input type="radio" name="rF" id="rF03" value="03">
+	<label for="rF03">Form III</label>
+    <input type="radio" name="rF" id="rF04" value="04">
+	<label for="rF04">Form IV</label>
+    <input type="radio" name="rF" id="rF05" value="05">
+	<label for="rF05">Form V</label>
+    <input type="radio" name="rF" id="rF06" value="06">
+	<label for="rF06">Form VI</label>
+    <input type="radio" name="rF" id="rF07" value="07">
+	<label for="rF07">Form VII</label>
+    <input type="radio" name="rF" id="rF08" value="08">
+	<label for="rF08">Form VIII</label>
+    <input type="radio" name="rF" id="rF09" value="09">
+	<label for="rF09">Form IX</label>
+    <input type="radio" name="rF" id="rF10" value="10">
+	<label for="rF10">Form X</label>
+    <input type="radio" name="rF" id="rF11" value="11">
+	<label for="rF11">Form XI</label>
+    <input type="radio" name="rF" id="rF12" value="12">
+	<label for="rF12">Form XII</label>
+    <input type="radio" name="rF" id="rF13" value="13">
+	<label for="rF13">Form XIII</label>
+    <input type="radio" name="rF" id="rF14" value="14">
+	<label for="rF14">Form XIV</label>
+    <input type="radio" name="rF" id="rF15" value="15">
+	<label for="rF15">Form XV</label>
+    <input type="radio" name="rF" id="rF21" value="21">
+	<label for="rF21">Form QI</label>
+    <input type="radio" name="rF" id="rF22" value="22">
+	<label for="rF22">Form QII</label>
+    <input type="radio" name="rF" id="rF23" value="23">
+	<label for="rF23">Form QIII</label>
+    <input type="radio" name="rF" id="rF24" value="24">
+	<label for="rF24">Form QIV</label>
+</fieldset>
+</ul>
+</div>
+<div id="L3" data-role="collapsible" data-theme="c" data-content-theme="a" data-collapsed-icon="carat-r" data-expanded-icon="carat-d" data-inset="false" class="ui-nodisc-icon">
+<h2>Filter on type<span class="ui-li-count ui-body-inherit ui-screen-hidden id-T">(n)</span></h2>
+<ul data-role="listview">
+<fieldset data-role="controlgroup" data-corners="false">
+    <input type="radio" name="rT" id="rT00" value="00" checked="checked">
+	<label for="rT00">Not filtered on type</label>
+    <input type="radio" name="rT" id="rT01" value="01">
+	<label for="rT01">Regular (n)</label>
+    <input type="radio" name="rT" id="rT02" value="02">
+	<label for="rT02">Assimilated (a)</label>
+    <input type="radio" name="rT" id="rT03" value="03">
+	<label for="rT03">Hollow (h)</label>
+    <input type="radio" name="rT" id="rT04" value="04">
+	<label for="rT04">Broken (b)</label>
+    <input type="radio" name="rT" id="rT05" value="05">
+	<label for="rT05">Geminate (g)</label>
+    <input type="radio" name="rT" id="rT06" value="06">
+	<label for="rT06">Hamzated (z)</label>
+    <input type="radio" name="rT" id="rT07" value="07">
+	<label for="rT07">Double weak (d)</label>
+</fieldset>
+</ul>
+</div>
+</div>
+</div>
+</td>
+<td  id="rppc" valign="top" style="position:relative;overflow:hidden;border-left-style: solid; border-left-width: thin; border-left-color: black;">
+<div style="width: 100%; height: 100%; display: block;">
+<div id="rightpagepanel" style="position: relative; overflow: auto;display: block;padding-left: 15px; padding-right: 15px;padding-top:15px;padding-bottom:15px ">
+     <table class="ui-table" style="border:none;position:relative">
+        <tr class="ui-bar-a" height="37px" >
+          <th class="ui-bar-a" width="18%"><button id="con-en5" class="id-btn-tense" data-theme="a">&lt;Select Tense&gt;</button></th>
+          <th class="ui-bar-a" width="18%"><button id="con-en4" class="id-btn-tense" data-theme="a">&lt;Select Tense&gt;</button></th>
+          <th class="ui-bar-a" width="18%"><button id="con-en3" class="id-btn-tense" data-theme="a">&lt;Select Tense&gt;</button></th>
+          <th class="ui-bar-a" width="18%"><button id="con-en2" class="id-btn-tense" data-theme="a">&lt;Select Tense&gt;</button></th>
+          <th class="ui-bar-a" width="18%"><button id="con-en1" class="id-btn-tense" data-theme="a">&lt;Select Tense&gt;</button></th>
+          <th class="ui-bar-a" width="10%" style="font-size:.7em">TENSE</th>
+        </tr>
+        <tr class="ui-bar-b">
+          <td class="ui-body-a"><span class="ui-aside" id="con-ar5"></span></td>
+          <td class="ui-body-a"><span class="ui-aside" id="con-ar4"></span></td>		  
+          <td class="ui-body-a"><span class="ui-aside" id="con-ar3"></span></td>
+          <td class="ui-body-a"><span class="ui-aside" id="con-ar2"></span></td>
+          <td class="ui-body-a"><span class="ui-aside" id="con-ar1"></span></td>
+          <td class="ui-bar-a" style="text-align:right;vertical-align:bottom;font-size:.7em">PERSON</td> 
+        </tr>
+	    <tr class="ui-bar-a">
+		  <td colspan="6"><span class="ui-aside">المفرد</span>Single</td>
+		</tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V511" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V411" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V311" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V211" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V111" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">أنا</span><span class="aw-index">1</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V512M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V412M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V312M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V212M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V112M" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">انْتَ</span><span class="aw-index">2M</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V512V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V412V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V312V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V212V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V112V" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">انْتِ</span><span class="aw-index">2F</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V513M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V413M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V313M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V213M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V113M" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">هُوَ</span><span class="aw-index">3M</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V513V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V413V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V313V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V213V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V113V" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">هِيَ</span><span class="aw-index">3F</span></td>
+        </tr>
+	    <tr class="ui-bar-a">
+		  <td colspan="6"><span class="ui-aside">المثنى</span>Dual</td>
+		</tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V522" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V422" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V322" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V222" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V122" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">انْتُما</span><span class="aw-index">2</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V523M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V423M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V323M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V223M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V123M" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">هُما</span><span class="aw-index">3M</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V523V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V423V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V323V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V223V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V123V" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">هُما</span><span class="aw-index">3F</span></td>
+        </tr>
+	    <tr class="ui-bar-a">
+		  <td colspan="6"><span class="ui-aside">الجمع</span>Plural</td>
+		</tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V531" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V431" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V331" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V231" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V131" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">نَحْنُ</span><span class="aw-index">1</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V532M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V432M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V332M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V232M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V132M" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">انْتُم</span><span class="aw-index">2M</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V532V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V432V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V332V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V232V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V132V" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">انْتُنَّ</span><span class="aw-index">2F</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V533M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V433M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V333M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V233M" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V133M" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">هُم</span><span class="aw-index">3M</span></td>
+        </tr>
+        <tr>
+		  <td class="ui-body-a"><span id="V533V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V433V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V333V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V233V" class="ui-aside-blue"></span></td>
+          <td class="ui-body-a"><span id="V133V" class="ui-aside-blue"></span></td>
+		  <td class="ui-bar-a"><span class="ui-aside">هُنَّ</span><span class="aw-index">3F</span></td>
+        </tr>
+<!--	    <tr class="ui-bar-a"><td colspan="6">
+		  <a href="#NEXTV" class="ui-btn ui-btn-b ui-mini ui-btn-full ui-btn-left ui-icon ui-btn-icon-left ui-corner-all ui-icon-carat-l" >Go left</a>
+		  <a href="#NEXTV" class="ui-btn ui-btn-b ui-mini ui-btn-full ui-btn-right ui-icon ui-btn-icon-right ui-corner-all ui-icon-carat-r" >Go right</a>
+		</td></tr> -->
+    </table>
+
+</div>
+</div>
+</td>
+</tr>
+</table>
+
+</div><!-- /content -->
+<div><div class="id-nav ui-rbtn ui-rbtn-left ui-bg-blue"></div><div class="id-nav ui-rbtn ui-rbtn-left ui-caret-l"></div></div>
+<div><div class="id-nav ui-rbtn ui-rbtn-right ui-bg-blue"></div><div class="id-nav ui-rbtn ui-rbtn-right ui-caret-r"></div></div>
+
+</div><!-- /page -->
+
+</body>
+</html>

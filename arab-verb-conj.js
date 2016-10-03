@@ -928,7 +928,7 @@ tll = (!vActive ? (((ll == "ى") || (ll == "ا")) && !(stamv == 1 && l2 == "أ")
     $("#VM"+(++j)).addClass("ui-screen-hidden") }
 
   hamzated = "ؤءئأ"
-  $(".id-verb.ui-li-aside").html(vtvorm + 
+  $(".id-verb").html(vtvorm + 
      (tll == "ى" ? "" : "َ" ) + " - " +
      (hamzated.indexOf(bl1) > -1 ? "أ" : bl1) + 
 	 (hamzated.indexOf(bl2) > -1 ? "أ" : bl2) + 

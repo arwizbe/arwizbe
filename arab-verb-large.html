@@ -315,7 +315,7 @@ html .ui-filterable {
   font-weight: normal !important;}
 
 .id-btn-tense.ui-btn-active {
-  background-color : #4163a9 !important;
+  background-color : #9daed1 !important;
 }
 
 .ui-btn, label.ui-btn {
@@ -423,6 +423,18 @@ li div.ui-select {
 	font-size: 1.6em;
 	font-weight: normal;
 }
+
+.ui-listview .ui-li-aside-blue {
+	position: static; 
+ 	right: 0em; 
+	margin: -.2em;
+	float:right;
+	font-size: 1.6em;
+	font-weight: normal;
+    color: #4163a9;
+}
+
+
 /* Button up */
 .ui-overlay-a .ui-btn,
 .ui-page-theme-a .ui-btn,
@@ -579,7 +591,43 @@ width: 48px;
 	background-image: url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11.dtd%22%3E%3Csvg%20version%3D%221.1%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20%20width%3D%2214px%22%20height%3D%2214px%22%20viewBox%3D%220%200%2014%2014%22%20style%3D%22enable-background%3Anew%200%200%2014%2014%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpolygon%20points%3D%223.404%2C2.051%208.354%2C7%203.404%2C11.95%205.525%2C14.07%2012.596%2C7%205.525%2C-0.071%20%22%2F%3E%3C%2Fsvg%3E");
 }
 
-
+/* Active button */
+.ui-page-theme-a .ui-btn.ui-btn-active,
+html .ui-bar-a .ui-btn.ui-btn-active,
+html .ui-body-a .ui-btn.ui-btn-active,
+html body .ui-group-theme-a .ui-btn.ui-btn-active,
+html head + body .ui-btn.ui-btn-a.ui-btn-active,
+/* Active checkbox icon */
+.ui-page-theme-a .ui-checkbox-on:after,
+html .ui-bar-a .ui-checkbox-on:after,
+html .ui-body-a .ui-checkbox-on:after,
+html body .ui-group-theme-a .ui-checkbox-on:after,
+.ui-btn.ui-checkbox-on.ui-btn-a:after,
+/* Active flipswitch background */
+.ui-page-theme-a .ui-flipswitch-active,
+html .ui-bar-a .ui-flipswitch-active,
+html .ui-body-a .ui-flipswitch-active,
+html body .ui-group-theme-a .ui-flipswitch-active,
+html body .ui-flipswitch.ui-bar-a.ui-flipswitch-active,
+/* Active slider track */
+.ui-page-theme-a .ui-slider-track .ui-btn-active,
+html .ui-bar-a .ui-slider-track .ui-btn-active,
+html .ui-body-a .ui-slider-track .ui-btn-active,
+html body .ui-group-theme-a .ui-slider-track .ui-btn-active,
+html body div.ui-slider-track.ui-body-a .ui-btn-active {
+	background-color: 		#9daed1 /*{a-active-background-color}*/;
+	border-color:	 		#9daed1 /*{a-active-border}*/;
+	color: 					#000 /*{a-active-color}*/;
+	text-shadow: 0 /*{a-active-shadow-x}*/ 0px /*{a-active-shadow-y}*/ 0 /*{a-active-shadow-radius}*/ #005599 /*{a-active-shadow-color}*/;
+}
+/* Active radio button icon */
+.ui-page-theme-a .ui-radio-on:after,
+html .ui-bar-a .ui-radio-on:after,
+html .ui-body-a .ui-radio-on:after,
+html body .ui-group-theme-a .ui-radio-on:after,
+.ui-btn.ui-radio-on.ui-btn-a:after {
+	border-color:			#9daed1 /*{a-active-background-color}*/;
+}
  
 </style>
 <script src="jquery.mobile.min.js"></script>
@@ -607,7 +655,7 @@ width: 48px;
 <div id="lbtop" style="padding:1em">
 <ul data-role="listview" data-theme="a" data-divider-theme="a" class="ui-alt-icon ui-nodisc-icon">
 <li data-role="list-divider" >Basics<span class="ui-li-count">25-09-2016</span></li>
-<li><a href="#LBMID"><span id="Base" class="id-verb ui-li-aside">فعل</span><span id="S">Stam I</span></a></li>
+<li><a href="#LBMID"><span id="Base" class="id-verb ui-li-aside-blue">فعل</span><span id="S">Stam I</span></a></li>
 
 
 </ul>
@@ -663,20 +711,20 @@ width: 48px;
 <div id="More" data-role="collapsible" data-collapsed="false" data-theme="c" data-content-theme="a" data-collapsed-icon="carat-r" data-expanded-icon="carat-d" data-inset="false">
 <h2>More</h2>
 <ul data-role="listview">
-<li id="VUW" class="ui-screen-hidden"><div id="UW" class="ui-li-aside">...أنْ \...على</div><span class="aw-index">USE WITH</span></li>
+<li id="VUW" class="ui-screen-hidden"><div id="UW" class="ui-li-aside-blue">...أنْ \...على</div><span class="aw-index">USE WITH</span></li>
 <li data-role="list-divider" ><span class="ui-li-aside">الترجمة</span>Translation</li>
 <li><span class="aw-index">NL</span> <span id="NL">Nederlands</span><span id="CLT" class="ui-li-count">4.1</span></li>
 <li><span class="aw-index">EN</span> <span id="EN">English</span><span id="IND" class="ui-li-count">411</span></li>
 <li data-role="list-divider" ><span class="ui-li-aside">اسم الفاعِل</span>Active Participle</li>
-<li><span id="AD" class="ui-li-aside"></span> &nbsp;</li>
+<li><span id="AD" class="ui-li-aside-blue"></span> &nbsp;</li>
 <li id="PPT" data-role="list-divider"><span class="ui-li-aside">اسم المَفعُول</span>Passive Participle</li>
-<li id="PPV"><span id="PD" class="ui-li-aside"></span> &nbsp;</li>
+<li id="PPV"><span id="PD" class="ui-li-aside-blue"></span> &nbsp;</li>
 <li data-role="list-divider"><span class="ui-li-aside">المصدر</span>MasDar</li>
-<li id="VM1" ><span id="M1" class="ui-li-aside">المصدر</span> &nbsp;</li>
-<li id="VM2" class="ui-screen-hidden"><span id="M2" class="ui-li-aside">المصدر</span> &nbsp;</li>
-<li id="VM3" class="ui-screen-hidden"><span id="M3" class="ui-li-aside">المصدر</span> &nbsp;</li>
-<li id="VM4" class="ui-screen-hidden"><span id="M4" class="ui-li-aside">المصدر</span> &nbsp;</li>
-<li id="VM5" class="ui-screen-hidden"><span id="M5" class="ui-li-aside">المصدر</span> &nbsp;</li>
+<li id="VM1" ><span id="M1" class="ui-li-aside-blue">المصدر</span> &nbsp;</li>
+<li id="VM2" class="ui-screen-hidden"><span id="M2" class="ui-li-aside-blue"></span> &nbsp;</li>
+<li id="VM3" class="ui-screen-hidden"><span id="M3" class="ui-li-aside-blue"></span> &nbsp;</li>
+<li id="VM4" class="ui-screen-hidden"><span id="M4" class="ui-li-aside-blue"></span> &nbsp;</li>
+<li id="VM5" class="ui-screen-hidden"><span id="M5" class="ui-li-aside-blue"></span> &nbsp;</li>
 </div><!-- /collapsible -->
 </div><!-- /collapsible set-->
 </ul>

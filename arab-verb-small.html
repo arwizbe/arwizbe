@@ -488,6 +488,18 @@ text-shadow: 0 /*{b-bup-shadow-x}*/ 1px /*{b-bup-shadow-y}*/ 0 /*{b-bup-shadow-r
 	font-weight: normal;
 }
 
+.ui-listview .ui-li-aside-blue {
+	position: static; 
+ 	right: 0em; 
+//	margin: -.2em;
+    margin:-.1em -.2em -.3em -.2em;
+	float:right;
+	font-size: 1.6em;
+	font-weight: normal;
+color: #4163a9;
+}
+
+
 .ui-li-center {
 	text-align: center;
 	font-size: 2.8em;
@@ -583,7 +595,48 @@ border-bottom-width: 0;
 .ui-bar-emph {
   background-color: #0078D7 !important;
   text-shadow: 0 !important;
-}</style>
+}
+
+/* Active button */
+.ui-page-theme-a .ui-btn.ui-btn-active,
+html .ui-bar-a .ui-btn.ui-btn-active,
+html .ui-body-a .ui-btn.ui-btn-active,
+html body .ui-group-theme-a .ui-btn.ui-btn-active,
+html head + body .ui-btn.ui-btn-a.ui-btn-active,
+/* Active checkbox icon */
+.ui-page-theme-a .ui-checkbox-on:after,
+html .ui-bar-a .ui-checkbox-on:after,
+html .ui-body-a .ui-checkbox-on:after,
+html body .ui-group-theme-a .ui-checkbox-on:after,
+.ui-btn.ui-checkbox-on.ui-btn-a:after,
+/* Active flipswitch background */
+.ui-page-theme-a .ui-flipswitch-active,
+html .ui-bar-a .ui-flipswitch-active,
+html .ui-body-a .ui-flipswitch-active,
+html body .ui-group-theme-a .ui-flipswitch-active,
+html body .ui-flipswitch.ui-bar-a.ui-flipswitch-active,
+/* Active slider track */
+.ui-page-theme-a .ui-slider-track .ui-btn-active,
+html .ui-bar-a .ui-slider-track .ui-btn-active,
+html .ui-body-a .ui-slider-track .ui-btn-active,
+html body .ui-group-theme-a .ui-slider-track .ui-btn-active,
+html body div.ui-slider-track.ui-body-a .ui-btn-active {
+	background-color: 		#9daed1 /*{a-active-background-color}*/;
+	border-color:	 		#9daed1 /*{a-active-border}*/;
+	color: 					#000 /*{a-active-color}*/;
+	text-shadow: 0 /*{a-active-shadow-x}*/ 0px /*{a-active-shadow-y}*/ 0 /*{a-active-shadow-radius}*/ #005599 /*{a-active-shadow-color}*/;
+}
+/* Active radio button icon */
+.ui-page-theme-a .ui-radio-on:after,
+html .ui-bar-a .ui-radio-on:after,
+html .ui-body-a .ui-radio-on:after,
+html body .ui-group-theme-a .ui-radio-on:after,
+.ui-btn.ui-radio-on.ui-btn-a:after {
+	border-color:			#9daed1 /*{a-active-background-color}*/;
+}
+ 
+
+</style>
 <script src="jquery.mobile.min.js"></script>
 
 </head> 
@@ -607,7 +660,7 @@ border-bottom-width: 0;
 <div data-role="content">
 <ul data-role="listview" data-theme="a" data-divider-theme="a" class="ui-alt-icon">
 <li data-role="list-divider" >Basics<span class="ui-li-count">25-09-2016</span></li>
-<li><a href="#main"><span id="Base" class="ui-li-aside id-verb">فَعَلَ - فعل</span><span id="S"><sup>FORM I</sup></span></a></li>
+<li><a href="#main"><span id="Base" class="ui-li-aside-blue id-verb">فَعَلَ - فعل</span><span id="S"><sup>FORM I</sup></span></a></li>
 <li><a href="#pm"><span class="ui-li-aside">...أكثر</span>More...</a></li>
 <li data-role="list-divider" >
 <span class="id-ap-switch id-ap-sw1 ui-li-aside" style="margin:-.4em">
@@ -794,15 +847,15 @@ border-bottom-width: 0;
 <li><span class="aw-index">NL</span> <span id="NL"></span><span id="CLT" class="ui-li-count">4.1</span></li>
 <li><span class="aw-index">EN</span> <span id="EN"></span><span id="IND" class="ui-li-count">411</span></li>
 <li data-role="list-divider" ><span class="ui-li-aside">اسم الفاعِل</span>Active Participle</li>
-<li><div id="AD" class="ui-li-aside"></div> &nbsp;</li>
+<li><div id="AD" class="ui-li-aside-blue"></div> &nbsp;</li>
 <li id="PPT" data-role="list-divider"><span class="ui-li-aside">اسم المَفعُول</span>Passive Participle</li>
-<li id="PPV"><div id="PD" class="ui-li-aside"></div> &nbsp;</li>
+<li id="PPV"><div id="PD" class="ui-li-aside-blue"></div> &nbsp;</li>
 <li id="VMT" data-role="list-divider"><span class="ui-li-aside">المصدر</span>Verbal Noun</li>
-<li id="VM1"><div id="M1" class="ui-li-aside">المصدر</div></li>
-<li id="VM2"><div id="M2" class="ui-li-aside">المصدر</div> &nbsp;</li>
-<li id="VM3"><div id="M3" class="ui-li-aside">المصدر</div> &nbsp;</li>
-<li id="VM4"><div id="M4" class="ui-li-aside">المصدر</div> &nbsp;</li>
-<li id="VM5"><div id="M5" class="ui-li-aside">المصدر</div> &nbsp;</li>
+<li id="VM1"><div id="M1" class="ui-li-aside-blue">المصدر</div></li>
+<li id="VM2"><div id="M2" class="ui-li-aside-blue">المصدر</div> &nbsp;</li>
+<li id="VM3"><div id="M3" class="ui-li-aside-blue">المصدر</div> &nbsp;</li>
+<li id="VM4"><div id="M4" class="ui-li-aside-blue">المصدر</div> &nbsp;</li>
+<li id="VM5"><div id="M5" class="ui-li-aside-blue">المصدر</div> &nbsp;</li>
 </ul>
 <div><div class="ui-rbtn ui-rbtn-left-s ui-bg-blue"></div><div class="id-S ui-rbtn ui-rbtn-left-s">a</div></div>
 </div>

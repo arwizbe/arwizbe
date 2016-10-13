@@ -595,7 +595,48 @@ border-bottom-width: 0;
 .ui-bar-emph {
   background-color: #0078D7 !important;
   text-shadow: 0 !important;
-}</style>
+}
+
+/* Active button */
+.ui-page-theme-a .ui-btn.ui-btn-active,
+html .ui-bar-a .ui-btn.ui-btn-active,
+html .ui-body-a .ui-btn.ui-btn-active,
+html body .ui-group-theme-a .ui-btn.ui-btn-active,
+html head + body .ui-btn.ui-btn-a.ui-btn-active,
+/* Active checkbox icon */
+.ui-page-theme-a .ui-checkbox-on:after,
+html .ui-bar-a .ui-checkbox-on:after,
+html .ui-body-a .ui-checkbox-on:after,
+html body .ui-group-theme-a .ui-checkbox-on:after,
+.ui-btn.ui-checkbox-on.ui-btn-a:after,
+/* Active flipswitch background */
+.ui-page-theme-a .ui-flipswitch-active,
+html .ui-bar-a .ui-flipswitch-active,
+html .ui-body-a .ui-flipswitch-active,
+html body .ui-group-theme-a .ui-flipswitch-active,
+html body .ui-flipswitch.ui-bar-a.ui-flipswitch-active,
+/* Active slider track */
+.ui-page-theme-a .ui-slider-track .ui-btn-active,
+html .ui-bar-a .ui-slider-track .ui-btn-active,
+html .ui-body-a .ui-slider-track .ui-btn-active,
+html body .ui-group-theme-a .ui-slider-track .ui-btn-active,
+html body div.ui-slider-track.ui-body-a .ui-btn-active {
+	background-color: 		#9daed1 /*{a-active-background-color}*/;
+	border-color:	 		#9daed1 /*{a-active-border}*/;
+	color: 					#000 /*{a-active-color}*/;
+	text-shadow: 0 /*{a-active-shadow-x}*/ 0px /*{a-active-shadow-y}*/ 0 /*{a-active-shadow-radius}*/ #005599 /*{a-active-shadow-color}*/;
+}
+/* Active radio button icon */
+.ui-page-theme-a .ui-radio-on:after,
+html .ui-bar-a .ui-radio-on:after,
+html .ui-body-a .ui-radio-on:after,
+html body .ui-group-theme-a .ui-radio-on:after,
+.ui-btn.ui-radio-on.ui-btn-a:after {
+	border-color:			#9daed1 /*{a-active-background-color}*/;
+}
+ 
+
+</style>
 <script src="jquery.mobile.min.js"></script>
 
 </head> 

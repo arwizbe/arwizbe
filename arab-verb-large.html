@@ -57,8 +57,9 @@ $( document ).on( "pagebeforechange", function(event, data) {
     logFunctionTime("pagebeforechange #V")
     v_code = url
     selectVerb()
-    $(".ui-rbtn-left").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7)) == 0)) 
-    $(".ui-rbtn-right").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7))+6 == all_verbs.length))
+	selectVerbList()
+//    $(".ui-rbtn-left").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7)) == 0)) 
+//    $(".ui-rbtn-right").toggleClass("ui-screen-hidden", (all_verbs.indexOf(v_code.slice(1,7))+6 == all_verbs.length))
     showLBTop()
     event.preventDefault(); }
   else if( url != undefined && url.length==4 && url.slice(0,2) == "#L") {
@@ -83,8 +84,8 @@ $( document ).on( "pagebeforechange", function(event, data) {
     logFunctionTime("pagebeforechange #LBBOT")
     showLBBot()
     event.preventDefault();}
-  else if( url != undefined && url.slice(0,2) == "#V" ) {
-    //selectVerbList( "" )
+  else if( url != undefined && url == "#APPLY" ) {
+//    selectVerbList( "" ) // 
     showLBMid()
     event.preventDefault(); }
 //  else if( url != undefined && url=="#NEXTV") {
@@ -643,7 +644,7 @@ html body .ui-group-theme-a .ui-radio-on:after,
 <div data-role="header" data-theme="a" data-position="fixed">
 <a id="close" href="#LBTOP" class="ui-btn-full ui-bl-icon ui-link ui-btn ui-btn-a ui-icon-delete ui-btn-icon-left ui-corner-all ui-screen-hidden">Close</a>
 <a id="verbl" href="#LBBOT" class="ui-btn-full ui-bl-icon ui-link ui-btn ui-btn-a ui-btn-fullsize ui-corner-all ui-icon-bullets ui-btn-icon-left ui-screen-hidden">Filter</a>
-<a id="apply" href="#V" class="ui-btn-full ui-bl-icon ui-link ui-btn ui-btn-a ui-btn-fullsize ui-corner-all ui-icon-bars ui-btn-icon-left ui-screen-hidden">Result</a>
+<a id="apply" href="#APPLY" class="ui-btn-full ui-bl-icon ui-link ui-btn ui-btn-a ui-btn-fullsize ui-corner-all ui-icon-bars ui-btn-icon-left ui-screen-hidden">Result</a>
 <h1 id="text-1">Arabic verb</h1> 
 <a href="mailto:arwiz.be@gmail.com?subject=About Arabic Verb" class="ui-btn-full ui-btn-right ui-bl-icon ui-link ui-btn ui-btn-a ui-icon-mail ui-btn-icon-left ui-corner-all">Contact</a>
  </div><!-- /header -->

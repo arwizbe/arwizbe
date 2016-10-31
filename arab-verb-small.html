@@ -109,21 +109,22 @@ $( document ).bind( "pagebeforechange", function(event, data) {
   }
   else if( url != undefined && url.length>5 && url.slice(0,2) =="#V") {
     v_code =  url
-    selectVerb()
+    selectVerbList( "" ) // load current verb in verb list
+	selectVerb()
 	$.mobile.navigate("",  { reverse:true })
     event.preventDefault(); }
   else if( url != undefined && url.length==4 && url.slice(0,2) == "#C") {
     selectTense( url )
     $.mobile.navigate("#con")
     event.preventDefault(); }
-  else if( url != undefined && url.slice(0,2) == "#V" ) {
+//  else if( url != undefined && url.slice(0,2) == "#V" ) {
 //    selectVerbList( "" )
-    $.mobile.navigate("#main", { reverse: true})
-    event.preventDefault(); }
-  else if( url != undefined && url.length==4 && (url.slice(0,2) == "#L" || url.slice(0,2) == "#F" || url.slice(0,2) == "#A" || url.slice(0,2) == "#R") ) {
-    selectVerbList( url )
-    $.mobile.navigate("#main", { reverse: true})
-    event.preventDefault(); }
+//    $.mobile.navigate("#main", { reverse: true})
+//    event.preventDefault(); }
+//  else if( url != undefined && url.length==4 && (url.slice(0,2) == "#L" || url.slice(0,2) == "#F" || url.slice(0,2) == "#A" || url.slice(0,2) == "#R") ) {
+//    selectVerbList( url )
+//    $.mobile.navigate("#main", { reverse: true})
+//    event.preventDefault(); }
 });
 
 $( document ).on( "change", ":checkbox", function ( data ) {
